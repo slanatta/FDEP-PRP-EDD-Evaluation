@@ -106,58 +106,61 @@ SCTLs = {'acenapthene':2400000,
          'cadmium':82000,
          'chromium':210,
          'lead':400000}
-Leachabilities = {'acenapthene':2100,
-         'acenaphthylene':27000,
-         'anthracene':2500000,
-         'benzo(a)anthracene': 800,
-         'benzo(a)pyrene':8000,
-         'benzo(b)fluoranthene':2400,
-         'benzo(g,h,i)perylene':32000000,
-         'benzo(k)fluoranthene':24000,
-         'chrysene':77000,
-         'dibenzo(a,h)anthracene':700,
-         'fluoranthene':1200000,
-         'fluorene':160000,
-         'indeno(1,2,3-cd)pyrene':6600,
-         '1-methylnaphthalene':3100,
-         '2-methylnaphthalene':8500,
-         'naphthalene':1200,
-         'phenanthrene':250000,
-         'pyrene':880000,
-         'benzene':7,
-         'ethylbenzene':600,
-         'toluene':500,
-         'total xylenes':200,
-         '1,2-dichloroethane':10,
-         'mtbe':90,
-         'methyl-t-butyl ether':90,
-         'trph':340000,
-         'arsenic':2100,
-         'cadmium':7500,
-         'chromium':38000,
-         'lead':400000}
+
+Leachabilities = {'acenapthene':2.1,
+         'acenaphthylene':27,
+         'anthracene':2500,
+         'benzo(a)anthracene': .8,
+         'benzo(a)pyrene':8,
+         'benzo(b)fluoranthene':2.4,
+         'benzo(g,h,i)perylene':32000,
+         'benzo(k)fluoranthene':24,
+         'chrysene':77,
+         'dibenzo(a,h)anthracene':.7,
+         'fluoranthene':1200,
+         'fluorene':160,
+         'indeno(1,2,3-cd)pyrene':6.6,
+         '1-methylnaphthalene':3.1,
+         '2-methylnaphthalene':8.5,
+         'naphthalene':1.2,
+         'phenanthrene':250,
+         'pyrene':880,
+         'benzene':.007,
+         'ethylbenzene':.6,
+         'toluene':.5,
+         'total xylenes':.2,
+         '1,2-dichloroethane':0.01,
+         'mtbe':.090,
+         'methyl-t-butyl ether':.090,
+         'trph':340,
+         'arsenic':2.1,
+         'cadmium':7.5,
+         'chromium':38,
+         'lead':400}
+
 import csv
 import sys
 from operator import itemgetter
 import os
+os.system("mode con: cols=220")
 import fileinput
 try:
         from GTCLdictcleaned import GCTLs
-        input('import of expanded gctls successful,  PRESS ENTER TO CONTINUE')
+        print('import of expanded gctls successful')
 except:
-        input('import of expanded gctl dictionary did not work, PRESS ENTER TO CONTINUE')
+        print('import of expanded gctl dictionary did not work')
+
 try:
         from Leachability import Leachability as Leachabilities
-        input('import of expanded leachability successful,  PRESS ENTER TO CONTINUE')
-        print(Leachabilities)
+        print('import of expanded leachability successful')        
 except:
-        input('import of expanded leachability dictionary did not work, PRESS ENTER TO CONTINUE')
+        print('import of expanded leachability dictionary did not work')
+
 try:
         from DERCTLs import DERCTLs as SCTLs
-        input('import of expanded sctls successful,  PRESS ENTER TO CONTINUE')
-        print(SCTLs)
+        print('import of expanded sctls successful')
 except:
-        input('import of expanded sctl dictionary did not work, PRESS ENTER TO CONTINUE')
+        print('import of expanded sctl dictionary did not work')
         
 HitSummary = []
 GCTLSummary = []
@@ -169,15 +172,6 @@ EDD = []
 
 
 def display_table(list):
-        lower_Exceedance = ''
-        upper_Exceedance = ''
-        lowerlevel = ''
-        upperlevel = ''
-        Detection = ''
-
-        # print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:>10}{:>10}{:^25}{:^25}{:^25}".format \
-                      # ('Fac_ID','Loc_Name', 'Samp_Date','Param','R','Q',\
-                       # 'U', 'G/L', 'NA/S', 'Dtd', 'G/L Ex', 'NA/S Ex'))
         
         sortedlist = sorted(list,key=itemgetter('Parameter'))
         sortedlist = sorted(sortedlist,key=itemgetter('TestSite_Name'))
@@ -191,19 +185,16 @@ def display_table(list):
                 Detection = ''
                 SCTL = ''
                 Leachability = ''
-                
-                
+                                
                 if row['Parameter'] in ['SAMPLE DEPTH','Dissolved Oxygen', 'Specific Conductance', 'Temperature, Water', 'Turbidity', 'pH']:
                         continue
                 if row['Qualifier']!= 'U':
                         Detection = 'Detection'
                 else:
                         Detection = ''
-
-                        
-
-
-                if row['Matrix'] == 'W':
+                   
+                
+                if row['Matrix'] == 'W':        # Everything within this if is for water samples
                         if count == 0:
                             print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:^10}{:^10}{:^25}{:^25}{:^25}".format \
                       ('Fac_ID','Loc_Name', 'Samp_Date','Param','R','Q',\
@@ -242,7 +233,8 @@ def display_table(list):
                         print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:^10}{:^10}{:^25}{:^25}{:^25}".format \
                           (row['Facility_ID'],row['TestSite_Name'], row['Sample_Date'], row['Parameter'], row['Result'], row['Qualifier'],\
                            row['Units'], GCTL, NADC, Detection, GCTL_Exceedance, NADC_Exceedance))        
-                elif row['Matrix'] == 'S':
+                
+                elif row['Matrix'] == 'S':      # Everything within this if is for soil samples
                         if count == 0:
                             print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:^10}{:^10}{:^25}{:^25}{:^25}".format \
                       ('Fac_ID','Loc_Name', 'Samp_Date','Param','R','Q',\
@@ -280,18 +272,9 @@ def display_table(list):
                         print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:^10}{:^10}{:^25}{:^25}{:^25}".format \
                                   (row['Facility_ID'],row['TestSite_Name'], row['Sample_Date'], row['Parameter'], row['Result'], row['Qualifier'],\
                                    row['Units'], Leachability, SCTL, Detection, Leachability_exceedance, SCTL_Exceedance))             
-                else:
+                else:                           # Anything that wasnt S or W is skipped over entirely
                         continue
                         
-                
-                
-                
-                
-                    
-
-                
-
-os.system("mode con: cols=220")
 with fileinput.input(sys.argv[1:]) as fileset:
 	reader = csv.reader(fileset)
 	for count, row in enumerate(reader):
@@ -314,7 +297,7 @@ with fileinput.input(sys.argv[1:]) as fileset:
                         Detection = ''
 
                         
-                if row['Matrix'] == 'W':
+                if row['Matrix'] == 'W':        # Everything within this if is for water samples
                         if   GCTLs.get(row['Parameter'].lower()) != None:        
                                 if   row['Units'].lower() == 'ug/l' and float(row['Result']) > float(GCTLs.get(row['Parameter'].lower())):
                                         if row not in HitSummary:
@@ -325,9 +308,6 @@ with fileinput.input(sys.argv[1:]) as fileset:
                                         if row not in HitSummary:
                                                 HitSummary.append(row)
                                         GCTLSummary.append(row)
-                              
-##                        
-##
                         if   NADCs.get(row['Parameter'].lower()) != None:
                                 if    row['Units'].lower() == 'ug/l' and float(row['Result']) > float(NADCs.get(row['Parameter'].lower())):
                                         upper_Exceedance = 'NADC_Exceedance'
@@ -345,7 +325,7 @@ with fileinput.input(sys.argv[1:]) as fileset:
                                         if row in GCTLSummary:
                                                 GCTLSummary.pop()
                                          
-                elif row['Matrix'] == 'S':
+                elif row['Matrix'] == 'S':      # Everyting within this if is for soil samples
                         if   Leachabilities.get(row['Parameter'].lower()) != None:        
                                 if   row['Units'].lower() == 'ug/kg' and float(row['Result'])/1000 > float(Leachabilities.get(row['Parameter'].lower())):
                                         if row not in HitSummary:
@@ -356,9 +336,6 @@ with fileinput.input(sys.argv[1:]) as fileset:
                                         if row not in HitSummary:
                                                 HitSummary.append(row)
                                         LeachabilitySummary.append(row)
-
-##                        
-##
                         if   SCTLs.get(row['Parameter'].lower()) != None:
                                 if    row['Units'].lower() == 'ug/kg' and float(row['Result'])/1000 > float(SCTLs.get(row['Parameter'].lower())):
                                         if row not in HitSummary:
@@ -374,15 +351,8 @@ with fileinput.input(sys.argv[1:]) as fileset:
                                         if row in LeachabilitySummary:
                                                 LeachabilitySummary.pop()
 
-                else:
+                else:                           # This is for anything that isnt S or W, it gets skipped over silently
                         continue
-
-                        
-                
-#                print(fileinput.filename(),fileinput.fileno(),fileinput.filelineno(), fileinput.lineno(), fileinput.isfirstline(), row['TestSite_Name'])
-
-
-
 
 print(" HitSummary ".center(220,"*"))
 print('')
