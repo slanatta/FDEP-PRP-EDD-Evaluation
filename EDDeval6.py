@@ -106,7 +106,7 @@ SCTLs = {'acenapthene':2400000,
          'cadmium':82000,
          'chromium':210,
          'lead':400000}
-Leachability = {'acenapthene':2100,
+Leachabilities = {'acenapthene':2100,
          'acenaphthylene':27000,
          'anthracene':2500000,
          'benzo(a)anthracene': 800,
@@ -147,8 +147,15 @@ try:
 except:
         input('import of expanded gctl dictionary did not work, PRESS ENTER TO CONTINUE')
 try:
+        from Leachability import Leachability as Leachabilities
+        input('import of expanded leachability successful,  PRESS ENTER TO CONTINUE')
+        print(Leachabilities)
+except:
+        input('import of expanded leachability dictionary did not work, PRESS ENTER TO CONTINUE')
+try:
         from DERCTLs import DERCTLs as SCTLs
         input('import of expanded sctls successful,  PRESS ENTER TO CONTINUE')
+        print(SCTLs)
 except:
         input('import of expanded sctl dictionary did not work, PRESS ENTER TO CONTINUE')
         
@@ -168,17 +175,24 @@ def display_table(list):
         upperlevel = ''
         Detection = ''
 
-        print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:>10}{:>10}{:^25}{:^25}{:^25}".format \
-                      ('Fac_ID','Loc_Name', 'Samp_Date','Param','R','Q',\
-                       'U', 'G/L', 'NA/S', 'Dtd', 'G/L Ex', 'NA/S Ex'))
+        # print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:>10}{:>10}{:^25}{:^25}{:^25}".format \
+                      # ('Fac_ID','Loc_Name', 'Samp_Date','Param','R','Q',\
+                       # 'U', 'G/L', 'NA/S', 'Dtd', 'G/L Ex', 'NA/S Ex'))
         
         sortedlist = sorted(list,key=itemgetter('Parameter'))
         sortedlist = sorted(sortedlist,key=itemgetter('TestSite_Name'))
         for count, row in enumerate(sortedlist):
-                lower_Exceedance = ''
-                upper_Exceedance = ''
-                lowerlevel = ''
-                upperlevel = ''
+                GCTL = ''
+                NADC = ''
+                GCTL_Exceedance = ''
+                NADC_Exceedance = ''
+                Leachability_exceedance = ''
+                SCTL_Exceedance = ''
+                Detection = ''
+                SCTL = ''
+                Leachability = ''
+                
+                
                 if row['Parameter'] in ['SAMPLE DEPTH','Dissolved Oxygen', 'Specific Conductance', 'Temperature, Water', 'Turbidity', 'pH']:
                         continue
                 if row['Qualifier']!= 'U':
@@ -190,77 +204,90 @@ def display_table(list):
 
 
                 if row['Matrix'] == 'W':
-                        if GCTLs.get(row['Parameter'].lower()) != None:
-                                lowerlevel = GCTLs.get(row['Parameter'].lower())
+                        if count == 0:
+                            print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:^10}{:^10}{:^25}{:^25}{:^25}".format \
+                      ('Fac_ID','Loc_Name', 'Samp_Date','Param','R','Q',\
+                       'U', 'GCTL ug/L', 'NADC ug/L', 'Dtd', 'GCTL Ex', 'NADC Ex'))
+                        if GCTLs.get(row['Parameter'].lower()) != None:         # if a GCTL is in the GCTL list set its value to the var GCTL
+                                GCTL = GCTLs.get(row['Parameter'].lower())
+                        else:                                                   # if a GCTL is not in the list then the GCTL variable is made blank
+                                GCTL = ''
+                        if NADCs.get(row['Parameter'].lower()) != None:         # if a NADC is not in the list then set ths value to the var NADC
+                                NADC = NADCs.get(row['Parameter'].lower())      
                         else:
-                                lowerlevel = ''
-                        if NADCs.get(row['Parameter'].lower()) != None:
-                                upperlevel = NADCs.get(row['Parameter'].lower())
-                        else:
-                                upperlevel = ''
+                                NADC = ''                                       # if a NADC is not in the list then the NADC variable is made blank
                         if   GCTLs.get(row['Parameter'].lower()) != None:        
-                                if   row['Units'] == 'ug/L' and float(row['Result']) > float(GCTLs.get(row['Parameter'].lower())):
-                                        lower_Exceedance = 'GCTL_Exceedance'
+                                if   row['Units'].lower() == 'ug/l' and float(row['Result']) > float(GCTLs.get(row['Parameter'].lower())):
+                                        GCTL_Exceedance = 'GCTL_Exceedance'
                                       
                                         
-                                elif row['Units'] == 'mg/L' and float(row['Result'])*1000 > float(GCTLs.get(row['Parameter'].lower())):
-                                        lower_Exceedance = 'GCTL_Exceedance'
+                                elif row['Units'].lower() == 'mg/l' and float(row['Result'])*1000 > float(GCTLs.get(row['Parameter'].lower())):
+                                        GCTL_Exceedance = 'GCTL_Exceedance'
                                        
                                 else:
-                                        lower_Exceedance = ''
+                                        GCTL_Exceedance = ''
+                        
 
                                 
                         if   NADCs.get(row['Parameter'].lower()) != None:
-                                if    row['Units'] == 'ug/L' and float(row['Result']) > float(NADCs.get(row['Parameter'].lower())):
-                                        upper_Exceedance = 'NADC_Exceedance'
+                                if    row['Units'].lower() == 'ug/l' and float(row['Result']) > float(NADCs.get(row['Parameter'].lower())):
+                                        NADC_Exceedance = 'NADC_Exceedance'
                                        
                                         
-                                elif  row['Units'] == 'mg/L' and float(row['Result'])*1000 > float(NADCs.get(row['Parameter'].lower())):
-                                        upper_Exceedance = 'NADC_Exceedance'
+                                elif  row['Units'].lower() == 'mg/l' and float(row['Result'])*1000 > float(NADCs.get(row['Parameter'].lower())):
+                                        NADC_Exceedance = 'NADC_Exceedance'
                                         
                                 else:
-                                        upper_Exceedance = ''
-                                
+                                        NADC_Exceedance = ''
+                        print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:^10}{:^10}{:^25}{:^25}{:^25}".format \
+                          (row['Facility_ID'],row['TestSite_Name'], row['Sample_Date'], row['Parameter'], row['Result'], row['Qualifier'],\
+                           row['Units'], GCTL, NADC, Detection, GCTL_Exceedance, NADC_Exceedance))        
                 elif row['Matrix'] == 'S':
+                        if count == 0:
+                            print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:^10}{:^10}{:^25}{:^25}{:^25}".format \
+                      ('Fac_ID','Loc_Name', 'Samp_Date','Param','R','Q',\
+                       'U', 'Lech mg/Kg', 'SCTL mg/Kg', 'Dtd', 'Leachability Ex', 'SCTL Ex'))
                         if SCTLs.get(row['Parameter'].lower()) != None:
-                                upperlevel = SCTLs.get(row['Parameter'].lower())
+                                SCTL = SCTLs.get(row['Parameter'].lower())
                         else:
-                                upperlevel = ''        
-                        if Leachability.get(row['Parameter'].lower()) != None:
-                                lowerlevel = Leachability.get(row['Parameter'].lower())
+                                SCTL = ''        
+                        if Leachabilities.get(row['Parameter'].lower()) != None:
+                                Leachability = Leachabilities.get(row['Parameter'].lower())
                         else:
-                                lowerlevel = ''
-                        if   Leachability.get(row['Parameter'].lower()) != None:        
-                                if   row['Units'].lower() == 'ug/kg' and float(row['Result']) > float(Leachability.get(row['Parameter'].lower())):
-                                        lower_Exceedance = 'Leachability'
+                                Leachability = ''
+                        if   Leachabilities.get(row['Parameter'].lower()) != None:        
+                                if   row['Units'].lower() == 'ug/kg' and float(row['Result'])/1000 > float(Leachabilities.get(row['Parameter'].lower())):
+                                        Leachability_exceedance = 'Leachability'
                                       
                                         
-                                elif row['Units'].lower() == 'mg/kg' and float(row['Result'])*1000 > float(Leachability.get(row['Parameter'].lower())):
-                                        lower_Exceedance = 'Leachability'
+                                elif row['Units'].lower() == 'mg/kg' and float(row['Result']) > float(Leachabilities.get(row['Parameter'].lower())):
+                                        Leachability_exceedance = 'Leachability'
                                        
                                 else:
-                                        lower_Exceedance = ''
+                                        Leachability_exceedance = ''
 
                                 
                         if   SCTLs.get(row['Parameter'].lower()) != None:
-                                if    row['Units'].lower() == 'ug/kg' and float(row['Result']) > float(SCTLs.get(row['Parameter'].lower())):
-                                        upper_Exceedance = 'SCTL_Exceedance'
+                                if    row['Units'].lower() == 'ug/kg' and float(row['Result'])/1000 > float(SCTLs.get(row['Parameter'].lower())):
+                                        SCTL_Exceedance = 'SCTL_Exceedance'
                                        
                                         
-                                elif  row['Units'].lower() == 'mg/kg' and float(row['Result'])*1000 > float(SCTLs.get(row['Parameter'].lower())):
-                                        upper_Exceedance = 'SCTL_Exceedance'
+                                elif  row['Units'].lower() == 'mg/kg' and float(row['Result']) > float(SCTLs.get(row['Parameter'].lower())):
+                                        SCTL_Exceedance = 'SCTL_Exceedance'
                                         
                                 else:
-                                        upper_Exceedance = ''
-                              
+                                        SCTL_Exceedance = ''
+                        print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:^10}{:^10}{:^25}{:^25}{:^25}".format \
+                                  (row['Facility_ID'],row['TestSite_Name'], row['Sample_Date'], row['Parameter'], row['Result'], row['Qualifier'],\
+                                   row['Units'], Leachability, SCTL, Detection, Leachability_exceedance, SCTL_Exceedance))             
                 else:
                         continue
                         
                 
                 
-                print("{:10}{:<20}{:<25}{:<39}{:>7}{:^5}{:<10}{:>10}{:>10}{:^25}{:^25}{:^25}".format \
-                      (row['Facility_ID'],row['TestSite_Name'], row['Sample_Date'], row['Parameter'], row['Result'], row['Qualifier'],\
-                       row['Units'], lowerlevel, upperlevel, Detection, lower_Exceedance, upper_Exceedance))
+                
+                
+                    
 
                 
 
@@ -288,33 +315,21 @@ with fileinput.input(sys.argv[1:]) as fileset:
 
                         
                 if row['Matrix'] == 'W':
-                        if GCTLs.get(row['Parameter'].lower()) != None:
-                                GCTLno = GCTLs.get(row['Parameter'].lower())
-                        else:
-                                GCTLno = ''
-                        if NADCs.get(row['Parameter'].lower()) != None:
-                                NADCno = NADCs.get(row['Parameter'].lower())
-                        else:
-                                NADCno = ''
-
                         if   GCTLs.get(row['Parameter'].lower()) != None:        
-                                if   row['Units'] == 'ug/L' and float(row['Result']) > float(GCTLs.get(row['Parameter'].lower())):
-                                        lower_Exceedance = 'GCTL_Exceedance'
+                                if   row['Units'].lower() == 'ug/l' and float(row['Result']) > float(GCTLs.get(row['Parameter'].lower())):
                                         if row not in HitSummary:
                                                 HitSummary.append(row)
                                         GCTLSummary.append(row)
                                         
-                                elif row['Units'] == 'mg/L' and float(row['Result'])*1000 > float(GCTLs.get(row['Parameter'].lower())):
-                                        lower_Exceedance = 'GCTL_Exceedance'
+                                elif row['Units'].lower() == 'mg/l' and float(row['Result'])*1000 > float(GCTLs.get(row['Parameter'].lower())):
                                         if row not in HitSummary:
                                                 HitSummary.append(row)
                                         GCTLSummary.append(row)
-                                else:
-                                        lower_Exceedance = ''
+                              
 ##                        
 ##
                         if   NADCs.get(row['Parameter'].lower()) != None:
-                                if    row['Units'] == 'ug/L' and float(row['Result']) > float(NADCs.get(row['Parameter'].lower())):
+                                if    row['Units'].lower() == 'ug/l' and float(row['Result']) > float(NADCs.get(row['Parameter'].lower())):
                                         upper_Exceedance = 'NADC_Exceedance'
                                         if row not in HitSummary:
                                                 HitSummary.append(row)
@@ -322,61 +337,43 @@ with fileinput.input(sys.argv[1:]) as fileset:
                                         if row in GCTLSummary:
                                                 GCTLSummary.pop()
                                                 
-                                elif  row['Units'] == 'mg/L' and float(row['Result'])*1000 > float(NADCs.get(row['Parameter'].lower())):
-                                        upper_Exceedance = 'NADC_Exceedance'
+                                elif  row['Units'].lower() == 'mg/l' and float(row['Result'])*1000 > float(NADCs.get(row['Parameter'].lower())):
+                                       
                                         if row not in HitSummary:
                                                 HitSummary.append(row)
                                         NADCSummary.append(row)
                                         if row in GCTLSummary:
                                                 GCTLSummary.pop()
-                                else:
-                                        upper_Exceedance = ''           
-##
-##                        
+                                         
                 elif row['Matrix'] == 'S':
-                        if SCTLs.get(row['Parameter'].lower()) != None:
-                                SCTLno = SCTLs.get(row['Parameter'].lower())
-                        else:
-                                SCTLno = ''        
-                        if Leachability.get(row['Parameter'].lower()) != None:
-                                Leachabilityno = Leachability.get(row['Parameter'].lower())
-                        else:
-                                Leachabilityno = ''
-                        if   Leachability.get(row['Parameter'].lower()) != None:        
-                                if   row['Units'].lower() == 'ug/kg' and float(row['Result']) > float(Leachability.get(row['Parameter'].lower())):
-                                        lower_Exceedance = 'Leachability'
+                        if   Leachabilities.get(row['Parameter'].lower()) != None:        
+                                if   row['Units'].lower() == 'ug/kg' and float(row['Result'])/1000 > float(Leachabilities.get(row['Parameter'].lower())):
                                         if row not in HitSummary:
                                                 HitSummary.append(row)
                                         LeachabilitySummary.append(row)
                                         
-                                elif row['Units'].lower() == 'mg/kg' and float(row['Result'])*1000 > float(Leachability.get(row['Parameter'].lower())):
-                                        lower_Exceedance = 'Leachability'
+                                elif row['Units'].lower() == 'mg/kg' and float(row['Result']) > float(Leachabilities.get(row['Parameter'].lower())):
                                         if row not in HitSummary:
                                                 HitSummary.append(row)
                                         LeachabilitySummary.append(row)
-                                else:
-                                        lower_Exceedance = ''
+
 ##                        
 ##
                         if   SCTLs.get(row['Parameter'].lower()) != None:
-                                if    row['Units'].lower() == 'ug/kg' and float(row['Result']) > float(SCTLs.get(row['Parameter'].lower())):
-                                        upper_Exceedance = 'SCTL_Exceedance'
+                                if    row['Units'].lower() == 'ug/kg' and float(row['Result'])/1000 > float(SCTLs.get(row['Parameter'].lower())):
                                         if row not in HitSummary:
                                                 HitSummary.append(row)
                                         SCTLSummary.append(row)
                                         if row in LeachabilitySummary:
                                                 LeachabilitySummary.pop()
                                                 
-                                elif  row['Units'].lower() == 'mg/kg' and float(row['Result'])*1000 > float(SCTLs.get(row['Parameter'].lower())):
-                                        upper_Exceedance = 'SCTL_Exceedance'
+                                elif  row['Units'].lower() == 'mg/kg' and float(row['Result']) > float(SCTLs.get(row['Parameter'].lower())):
                                         if row not in HitSummary:
                                                 HitSummary.append(row)
                                         SCTLSummary.append(row)
                                         if row in LeachabilitySummary:
                                                 LeachabilitySummary.pop()
-                                else:
-                                        upper_Exceedance = ''           
-                                
+
                 else:
                         continue
 
